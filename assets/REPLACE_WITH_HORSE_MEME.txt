@@ -1,0 +1,10 @@
+🐎 HORSE MEME IMAGE PLACEHOLDER 🐎
+
+To replace this placeholder:
+
+1. Save your horse meme image as "horse-meme.jpg" in this assets/ directory
+2. The image should show the horse with human head meme with text "yeehaw its code country"
+3. Recommended size: 500px wide or larger
+4. The HTML will automatically load this image when present
+
+The web app is ready to display your legendary meme! 🤠

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ian's Special Repo - Code Country</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #2C3E50;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #8B4513;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            color: #2C3E50;
+        }
+
+        .horse-image {
+            max-width: 500px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .yeehaw-button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .yeehaw-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #FF5252, #26C6DA);
+        }
+
+        .yeehaw-button:active {
+            transform: translateY(0);
+        }
+
+        .yeehaw-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #FF6B6B;
+            margin-top: 2rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: all 0.5s ease;
+            animation-duration: 2s;
+            animation-fill-mode: both;
+        }
+
+        .yeehaw-display.show {
+            opacity: 1;
+            animation-name: bounce;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -30px, 0);
+            }
+            70% {
+                transform: translate3d(0, -15px, 0);
+            }
+            90% {
+                transform: translate3d(0, -4px, 0);
+            }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .welcome-text {
+                font-size: 1.2rem;
+            }
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤠 Welcome to Code Country! 🤠</h1>
+        
+        <p class="welcome-text">
+            Howdy, partner! You've entered the wildest repository in the west!
+        </p>
+
+        <!-- Horse meme image placeholder - we'll replace this with the actual image -->
+        <div style="position: relative;">
+            <img src="assets/horse-meme.jpg" alt="Yeehaw its code country" class="horse-image" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; padding: 50px; background: #f0f0f0; border-radius: 10px; font-size: 1.2rem; color: #666;">
+                🐎 Horse meme image will go here! 🐎<br>
+                <small>(Image placeholder - replace with your meme)</small>
+            </div>
+        </div>
+
+        <button class="yeehaw-button" onclick="showYeehaw()">
+            🤠 Click for Yeehaw! 🤠
+        </button>
+
+        <div id="yeehawDisplay" class="yeehaw-display">
+            YEEHAW! 🤠🐎
+        </div>
+
+        <div class="footer">
+            <p>Built with ❤️ and Node.js by Ian</p>
+            <p>Ready to be containerized and deployed! 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        let yeehawCount = 0;
+        const yeehawMessages = [
+            "YEEHAW! 🤠🐎",
+            "GIDDY UP! 🐎💨", 
+            "HOWDY PARTNER! 🤠👋",
+            "RIDE 'EM COWBOY! 🐎🤠",
+            "YEE-HAW-HAW! 🤠🎉",
+            "WELCOME TO CODE COUNTRY! 🏜️💻"
+        ];
+
+        function showYeehaw() {
+            const display = document.getElementById('yeehawDisplay');
+            
+            // Remove the show class to reset animation
+            display.classList.remove('show');
+            
+            // Change the message
+            display.textContent = yeehawMessages[yeehawCount % yeehawMessages.length];
+            yeehawCount++;
+            
+            // Force reflow and add the show class to trigger animation
+            display.offsetHeight;
+            display.classList.add('show');
+            
+            // Add some fun sound effect text
+            if (yeehawCount > 3) {
+                setTimeout(() => {
+                    display.textContent += " 🎵";
+                }, 500);
+            }
+        }
+
+        // Add some interactive background effects
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('yeehaw-button')) {
+                // Create a temporary sparkle effect
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = '✨';
+                sparkle.style.position = 'absolute';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                sparkle.style.fontSize = '2rem';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.animation = 'sparkle 1s ease-out forwards';
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            }
+        });
+
+        // Add sparkle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle {
+                0% { opacity: 1; transform: scale(1) translateY(0); }
+                100% { opacity: 0; transform: scale(2) translateY(-50px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
