@@ -13,7 +13,8 @@ A fun Node.js web application that displays a horse meme with "Welcome to Code C
 - 🎉 Interactive "Yeehaw" button with animations
 - ✨ Sparkle effects and bouncing text
 - 📱 Responsive design
-- 🚀 Docker ready!
+- 🚀 Docker ready with multi-architecture support!
+- 🔧 **Warp CLI included** - Use Warp agents from within the container
 
 ## Setup & Run
 
@@ -29,6 +30,21 @@ Visit `http://localhost:3000` to enter Code Country!
 ```bash
 docker build -t ians-special-repo .
 docker run -p 3000:3000 ians-special-repo
+```
+
+### Using Warp CLI in the Container
+The Docker image includes the Warp CLI! You can use it like this:
+
+```bash
+# Start container with interactive shell
+docker run -it -p 3000:3000 ihodge97/ians-special-repo:latest /bin/bash
+
+# Inside the container, you can use warp-cli
+warp-cli --version
+warp-cli --help
+
+# Or run warp-cli directly from docker run
+docker run --rm ihodge97/ians-special-repo:latest warp-cli --version
 ```
 
 ## Docker Hub
