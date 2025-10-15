@@ -94,6 +94,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV WARP_API_KEY=wk-1.c8ade064a3e53f2cb41f41849c7d72a57be737edbd0bf331620739498a81301d
 
 # Set entrypoint and default command
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
@@ -102,5 +103,5 @@ CMD []
 # Add labels for better image management
 LABEL maintainer="Ian Hodge <ihodge97@example.com>"
 LABEL description="Ian's Special Repo - Welcome to Code Country! 🤠 (includes Warp CLI)"
-LABEL version="2.0"
+LABEL version="3.0"
 LABEL warp-cli="included"
