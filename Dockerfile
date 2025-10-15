@@ -77,15 +77,24 @@ RUN groupadd -g 1001 nodejs && \
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'set -e' >> /usr/local/bin/entrypoint.sh && \
     echo '' >> /usr/local/bin/entrypoint.sh && \
-    echo '# If no arguments or if first arg is not a command, start the web app' >> /usr/local/bin/entrypoint.sh && \
+    echo '# Debug: Print arguments for troubleshooting' >> /usr/local/bin/entrypoint.sh && \
+    echo '# echo "DEBUG: Args: $*" >&2' >> /usr/local/bin/entrypoint.sh && \
+    echo '' >> /usr/local/bin/entrypoint.sh && \
+    echo '# If no arguments or if first arg starts with -, start the web app' >> /usr/local/bin/entrypoint.sh && \
     echo 'if [ $# -eq 0 ] || [ "${1:0:1}" = "-" ]; then' >> /usr/local/bin/entrypoint.sh && \
     echo '    echo "🤠 Starting Code Country web application..."' >> /usr/local/bin/entrypoint.sh && \
     echo '    exec npm start' >> /usr/local/bin/entrypoint.sh && \
     echo 'fi' >> /usr/local/bin/entrypoint.sh && \
     echo '' >> /usr/local/bin/entrypoint.sh && \
-    echo '# If first argument is warp-cli, execute it' >> /usr/local/bin/entrypoint.sh && \
+    echo '# Handle warp-cli commands' >> /usr/local/bin/entrypoint.sh && \
     echo 'if [ "$1" = "warp-cli" ]; then' >> /usr/local/bin/entrypoint.sh && \
     echo '    shift' >> /usr/local/bin/entrypoint.sh && \
+    echo '    exec /usr/local/bin/warp-cli "$@"' >> /usr/local/bin/entrypoint.sh && \
+    echo 'fi' >> /usr/local/bin/entrypoint.sh && \
+    echo '' >> /usr/local/bin/entrypoint.sh && \
+    echo '# Handle direct agent commands (redirect to warp-cli)' >> /usr/local/bin/entrypoint.sh && \
+    echo 'if [ "$1" = "agent" ]; then' >> /usr/local/bin/entrypoint.sh && \
+    echo '    echo "Converting agent command to warp-cli agent..."' >> /usr/local/bin/entrypoint.sh && \
     echo '    exec /usr/local/bin/warp-cli "$@"' >> /usr/local/bin/entrypoint.sh && \
     echo 'fi' >> /usr/local/bin/entrypoint.sh && \
     echo '' >> /usr/local/bin/entrypoint.sh && \
