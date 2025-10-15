@@ -64,9 +64,48 @@ open http://localhost:3000
 ```
 
 #### 🔑 Authentication
-Note: Warp CLI requires authentication. In a remote environment, you'll need to:
-1. Set up API keys or authentication as per Warp documentation
-2. Or run `warp-cli login` if in an interactive environment
+Warp CLI requires authentication. Here are the secure ways to provide your API key:
+
+**Method 1: Environment Variable (Recommended)**
+```bash
+# Set API key when running container
+docker run --rm -e WARP_API_KEY={{your_api_key}} ihodge97/ians-special-repo:latest agent run --prompt "Your command"
+
+# For persistent containers
+docker run -d -p 3000:3000 -e WARP_API_KEY={{your_api_key}} --name code-country ihodge97/ians-special-repo:latest
+```
+
+**Method 2: Docker Secrets (Production)**
+```bash
+# Create secret
+echo "your_api_key" | docker secret create warp_api_key -
+
+# Use in Docker Swarm
+docker service create --secret warp_api_key --env WARP_API_KEY_FILE=/run/secrets/warp_api_key your-image
+```
+
+**Method 3: Kubernetes Secrets**
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: warp-api-key
+type: Opaque
+stringData:
+  WARP_API_KEY: "your_api_key_here"
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+      - name: code-country
+        image: ihodge97/ians-special-repo:latest
+        envFrom:
+        - secretRef:
+            name: warp-api-key
+```
 
 ## Docker Hub
 Image available at: `ihodge97/ians-special-repo:latest`
