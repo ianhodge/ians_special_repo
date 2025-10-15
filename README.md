@@ -33,39 +33,40 @@ docker run -p 3000:3000 ians-special-repo
 ```
 
 ### Using Warp CLI in the Container
-The Docker image is set up to support Warp CLI, but requires manual installation:
+🎉 **The Docker image now includes the real Warp CLI pre-installed!** 🎉
 
-#### Step 1: Install Warp CLI in the container
+#### ✅ Ready to Use Warp CLI
 ```bash
-# Start the container with shell access
-docker run -it -p 3000:3000 ihodge97/ians-special-repo:latest /bin/sh
+# Run Warp CLI agent commands directly:
+docker run --rm ihodge97/ians-special-repo:latest warp-cli agent run --prompt "List files in current directory"
+docker run --rm ihodge97/ians-special-repo:latest warp-cli agent run --prompt "Show me the current directory"
+docker run --rm ihodge97/ians-special-repo:latest warp-cli agent run --prompt "Create a new file called test.txt"
 
-# Inside the container, install Warp CLI:
-curl -fsSL https://app.warp.dev/get_cli | sh
+# Or use the shortcut (agent command maps to warp-cli agent):
+docker run --rm ihodge97/ians-special-repo:latest agent run --prompt "Your command here"
 
-# Or use the wrapper to see installation instructions:
-warp-cli --help
+# Check what's available:
+docker run --rm ihodge97/ians-special-repo:latest warp-cli --help
+docker run --rm ihodge97/ians-special-repo:latest warp-cli agent --help
 ```
 
-#### Step 2: Use Warp CLI for agent operations
+#### 🚀 Running with Web App + CLI
 ```bash
-# After installation, you can run agent commands:
-warp-cli agent run --prompt "List files in current directory"
-warp-cli agent run --prompt "Show me the current directory"
-warp-cli agent run --prompt "Create a new file called test.txt"
+# Start web app in background
+docker run -d -p 3000:3000 --name code-country ihodge97/ians-special-repo:latest
 
-# Or from outside the container (after installing CLI inside):
-docker exec <container-name> warp-cli agent run --prompt "Your command here"
+# Use Warp CLI from the running container
+docker exec code-country warp-cli agent run --prompt "List all files"
+docker exec code-country agent run --prompt "Show current directory"
+
+# Visit the web app
+open http://localhost:3000
 ```
 
-#### Alternative: Pre-install in custom image
-```dockerfile
-# Build your own image with Warp CLI pre-installed
-FROM ihodge97/ians-special-repo:latest
-USER root
-RUN curl -fsSL https://app.warp.dev/get_cli | sh
-USER nextjs
-```
+#### 🔑 Authentication
+Note: Warp CLI requires authentication. In a remote environment, you'll need to:
+1. Set up API keys or authentication as per Warp documentation
+2. Or run `warp-cli login` if in an interactive environment
 
 ## Docker Hub
 Image available at: `ihodge97/ians-special-repo:latest`

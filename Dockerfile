@@ -14,46 +14,23 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Create warp-cli installation helper script
-# Since Warp CLI binaries aren't publicly available via standard package managers,
-# we create a helper that guides users through the installation process
-RUN echo '#!/bin/bash' > /usr/local/bin/warp-cli && \
-    echo '# Warp CLI Installation Helper' >> /usr/local/bin/warp-cli && \
-    echo '' >> /usr/local/bin/warp-cli && \
-    echo 'WARP_CLI_INSTALLED="/usr/local/bin/warp-cli-real"' >> /usr/local/bin/warp-cli && \
-    echo '' >> /usr/local/bin/warp-cli && \
-    echo '# Check if the real CLI has been installed' >> /usr/local/bin/warp-cli && \
-    echo 'if [ -f "$WARP_CLI_INSTALLED" ]; then' >> /usr/local/bin/warp-cli && \
-    echo '    exec "$WARP_CLI_INSTALLED" "$@"' >> /usr/local/bin/warp-cli && \
-    echo 'fi' >> /usr/local/bin/warp-cli && \
-    echo '' >> /usr/local/bin/warp-cli && \
-    echo '# If this is an install command, try to install' >> /usr/local/bin/warp-cli && \
-    echo 'if [ "$1" = "install" ]; then' >> /usr/local/bin/warp-cli && \
-    echo '    echo "🔧 Installing Warp CLI..."' >> /usr/local/bin/warp-cli && \
-    echo '    curl -fsSL "https://app.warp.dev/get_cli" | sh' >> /usr/local/bin/warp-cli && \
-    echo '    if [ $? -eq 0 ]; then' >> /usr/local/bin/warp-cli && \
-    echo '        echo "✅ Warp CLI installed successfully!"' >> /usr/local/bin/warp-cli && \
-    echo '        echo "You can now use: warp-cli agent run --prompt \"your prompt\""' >> /usr/local/bin/warp-cli && \
-    echo '        exit 0' >> /usr/local/bin/warp-cli && \
-    echo '    else' >> /usr/local/bin/warp-cli && \
-    echo '        echo "❌ Installation failed. Please visit https://docs.warp.dev/developers/cli"' >> /usr/local/bin/warp-cli && \
-    echo '        exit 1' >> /usr/local/bin/warp-cli && \
-    echo '    fi' >> /usr/local/bin/warp-cli && \
-    echo 'fi' >> /usr/local/bin/warp-cli && \
-    echo '' >> /usr/local/bin/warp-cli && \
-    echo '# Show help/installation instructions' >> /usr/local/bin/warp-cli && \
-    echo 'echo "🤠 Warp CLI Ready Container"' >> /usr/local/bin/warp-cli && \
-    echo 'echo ""' >> /usr/local/bin/warp-cli && \
-    echo 'echo "To install Warp CLI in this container:"' >> /usr/local/bin/warp-cli && \
-    echo 'echo "  warp-cli install"' >> /usr/local/bin/warp-cli && \
-    echo 'echo ""' >> /usr/local/bin/warp-cli && \
-    echo 'echo "Or manually:"' >> /usr/local/bin/warp-cli && \
-    echo 'echo "  curl -fsSL https://app.warp.dev/get_cli | sh"' >> /usr/local/bin/warp-cli && \
-    echo 'echo ""' >> /usr/local/bin/warp-cli && \
-    echo 'echo "After installation, use:"' >> /usr/local/bin/warp-cli && \
-    echo 'echo "  warp-cli agent run --prompt \"your command\""' >> /usr/local/bin/warp-cli && \
-    echo '' >> /usr/local/bin/warp-cli && \
-    chmod +x /usr/local/bin/warp-cli
+# Install Warp CLI directly from staging endpoint
+# Using the staging download endpoint that supports direct DEB package downloads
+RUN ARCH=$(dpkg --print-architecture) && \
+    echo "Installing Warp CLI for architecture: $ARCH" && \
+    # Map architecture names for the download URL
+    case $ARCH in \
+        amd64) TARGET_ARCH="amd64" ;; \
+        arm64) TARGET_ARCH="arm64" ;; \
+        *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
+    esac && \
+    # Download the DEB package from staging endpoint
+    curl -fsSL "https://staging.warp.dev/download/cli?os=linux&package=deb&channel=dev&arch=$TARGET_ARCH" -o /tmp/warp-cli.deb && \
+    # Install the DEB package
+    dpkg -i /tmp/warp-cli.deb && \
+    # Clean up
+    rm /tmp/warp-cli.deb && \
+    echo "Warp CLI installed successfully from staging endpoint"
 
 # Set working directory in container
 WORKDIR /app
@@ -71,6 +48,10 @@ COPY . .
 RUN groupadd -g 1001 nodejs && \
     useradd -r -u 1001 -g nodejs -d /app -s /bin/bash -c "Node.js user" nextjs && \
     chown -R nextjs:nodejs /app
+
+# Create symlink for easier access and update PATH
+RUN ln -sf /usr/bin/warp-cli-dev /usr/local/bin/warp-cli || \
+    ln -sf /opt/warpdotdev/warp-cli-dev/warp-dev /usr/local/bin/warp-cli
 
 # Create entrypoint script to handle both web app and CLI commands (as root)
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
