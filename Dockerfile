@@ -53,15 +53,20 @@ COPY . .
 # Create a non-root user for security (Debian syntax)
 RUN groupadd -g 1001 nodejs && \
     useradd -r -u 1001 -g nodejs -d /app -s /bin/sh -c "Node.js user" nextjs && \
-    chown -R nextjs:nodejs /app
+    chown -R nextjs:nodejs /app && \
+    # Ensure warp-cli is accessible to all users
+    chmod 755 /usr/local/bin/warp-cli
+
+# Verify Warp CLI installation (as root)
+RUN warp-cli --version
 
 USER nextjs
 
+# Set PATH to include /usr/local/bin for the nextjs user
+ENV PATH="/usr/local/bin:${PATH}"
+
 # Expose port 3000
 EXPOSE 3000
-
-# Verify Warp CLI installation
-RUN warp-cli --version
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
