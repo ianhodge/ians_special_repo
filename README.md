@@ -33,18 +33,38 @@ docker run -p 3000:3000 ians-special-repo
 ```
 
 ### Using Warp CLI in the Container
-The Docker image includes the Warp CLI! You can use it like this:
+The Docker image is set up to support Warp CLI, but requires manual installation:
 
+#### Step 1: Install Warp CLI in the container
 ```bash
-# Start container with interactive shell
-docker run -it -p 3000:3000 ihodge97/ians-special-repo:latest /bin/bash
+# Start the container with shell access
+docker run -it -p 3000:3000 ihodge97/ians-special-repo:latest /bin/sh
 
-# Inside the container, you can use warp-cli
-warp-cli --version
+# Inside the container, install Warp CLI:
+curl -fsSL https://app.warp.dev/get_cli | sh
+
+# Or use the wrapper to see installation instructions:
 warp-cli --help
+```
 
-# Or run warp-cli directly from docker run
-docker run --rm ihodge97/ians-special-repo:latest warp-cli --version
+#### Step 2: Use Warp CLI for agent operations
+```bash
+# After installation, you can run agent commands:
+warp-cli agent run --prompt "List files in current directory"
+warp-cli agent run --prompt "Show me the current directory"
+warp-cli agent run --prompt "Create a new file called test.txt"
+
+# Or from outside the container (after installing CLI inside):
+docker exec <container-name> warp-cli agent run --prompt "Your command here"
+```
+
+#### Alternative: Pre-install in custom image
+```dockerfile
+# Build your own image with Warp CLI pre-installed
+FROM ihodge97/ians-special-repo:latest
+USER root
+RUN curl -fsSL https://app.warp.dev/get_cli | sh
+USER nextjs
 ```
 
 ## Docker Hub

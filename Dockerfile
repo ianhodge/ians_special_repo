@@ -9,32 +9,48 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Warp CLI
-# Create a functional warp-cli installation
-# Note: The actual Warp CLI requires specific setup for agent functionality
-# This provides the CLI interface that can connect to Warp services
-RUN echo '#!/bin/bash' > /usr/local/bin/warp-cli && \
-    echo 'echo "Warp CLI v1.0.0 (containerized)"' >> /usr/local/bin/warp-cli && \
-    echo 'echo ""' >> /usr/local/bin/warp-cli && \
+# Prepare for Warp CLI installation
+# The Warp CLI may not be available for all architectures or via automatic installation
+# This creates a framework for the CLI and provides installation instructions
+RUN echo "Setting up Warp CLI installation framework..." && \
+    # Create a wrapper script that provides installation guidance and basic functionality
+    echo '#!/bin/bash' > /usr/local/bin/warp-cli && \
+    echo 'set -e' >> /usr/local/bin/warp-cli && \
+    echo '' >> /usr/local/bin/warp-cli && \
+    echo '# Check if actual warp-cli binary exists' >> /usr/local/bin/warp-cli && \
+    echo 'REAL_WARP_CLI="/usr/local/bin/warp-cli-binary"' >> /usr/local/bin/warp-cli && \
+    echo 'if [ -f "$REAL_WARP_CLI" ]; then' >> /usr/local/bin/warp-cli && \
+    echo '    exec "$REAL_WARP_CLI" "$@"' >> /usr/local/bin/warp-cli && \
+    echo 'fi' >> /usr/local/bin/warp-cli && \
+    echo '' >> /usr/local/bin/warp-cli && \
+    echo '# Provide help and installation instructions' >> /usr/local/bin/warp-cli && \
     echo 'if [ "$1" = "--version" ] || [ "$1" = "-v" ]; then' >> /usr/local/bin/warp-cli && \
-    echo '  echo "warp-cli 1.0.0"' >> /usr/local/bin/warp-cli && \
-    echo '  exit 0' >> /usr/local/bin/warp-cli && \
+    echo '    echo "warp-cli (container setup - requires manual installation)"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "To install the real Warp CLI:"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "1. Run: curl -fsSL https://app.warp.dev/get_cli | sh"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "2. Or visit: https://docs.warp.dev/developers/cli"' >> /usr/local/bin/warp-cli && \
+    echo '    exit 0' >> /usr/local/bin/warp-cli && \
     echo 'fi' >> /usr/local/bin/warp-cli && \
+    echo '' >> /usr/local/bin/warp-cli && \
     echo 'if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ $# -eq 0 ]; then' >> /usr/local/bin/warp-cli && \
-    echo '  echo "Warp CLI - Agent Mode Interface"' >> /usr/local/bin/warp-cli && \
-    echo '  echo ""' >> /usr/local/bin/warp-cli && \
-    echo '  echo "Usage: warp-cli [command] [options]"' >> /usr/local/bin/warp-cli && \
-    echo '  echo ""' >> /usr/local/bin/warp-cli && \
-    echo '  echo "Commands:"' >> /usr/local/bin/warp-cli && \
-    echo '  echo "  --version, -v    Show version information"' >> /usr/local/bin/warp-cli && \
-    echo '  echo "  --help, -h       Show this help message"' >> /usr/local/bin/warp-cli && \
-    echo '  echo ""' >> /usr/local/bin/warp-cli && \
-    echo '  echo "Note: This is a containerized environment."' >> /usr/local/bin/warp-cli && \
-    echo '  echo "For full agent functionality, use the complete Warp application."' >> /usr/local/bin/warp-cli && \
-    echo '  exit 0' >> /usr/local/bin/warp-cli && \
+    echo '    echo "Warp CLI (Container Setup)"' >> /usr/local/bin/warp-cli && \
+    echo '    echo ""' >> /usr/local/bin/warp-cli && \
+    echo '    echo "This container is set up to support Warp CLI, but the binary"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "needs to be installed manually due to platform restrictions."' >> /usr/local/bin/warp-cli && \
+    echo '    echo ""' >> /usr/local/bin/warp-cli && \
+    echo '    echo "To install Warp CLI in this container:"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "1. Run: curl -fsSL https://app.warp.dev/get_cli | sh"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "2. Or manually download from: https://docs.warp.dev/developers/cli"' >> /usr/local/bin/warp-cli && \
+    echo '    echo ""' >> /usr/local/bin/warp-cli && \
+    echo '    echo "Expected usage after installation:"' >> /usr/local/bin/warp-cli && \
+    echo '    echo "  warp-cli agent run --prompt \"your prompt here\""' >> /usr/local/bin/warp-cli && \
+    echo '    exit 0' >> /usr/local/bin/warp-cli && \
     echo 'fi' >> /usr/local/bin/warp-cli && \
-    echo 'echo "Warp CLI: Command not implemented in container environment"' >> /usr/local/bin/warp-cli && \
-    echo 'echo "Available: --version, --help"' >> /usr/local/bin/warp-cli && \
+    echo '' >> /usr/local/bin/warp-cli && \
+    echo '# If someone tries to run agent commands, provide helpful guidance' >> /usr/local/bin/warp-cli && \
+    echo 'echo "❌ Warp CLI not installed yet."' >> /usr/local/bin/warp-cli && \
+    echo 'echo "Run: curl -fsSL https://app.warp.dev/get_cli | sh"' >> /usr/local/bin/warp-cli && \
+    echo 'echo "Then try your command again."' >> /usr/local/bin/warp-cli && \
     echo 'exit 1' >> /usr/local/bin/warp-cli && \
     chmod +x /usr/local/bin/warp-cli
 
@@ -57,8 +73,30 @@ RUN groupadd -g 1001 nodejs && \
     # Ensure warp-cli is accessible to all users
     chmod 755 /usr/local/bin/warp-cli
 
-# Verify Warp CLI installation (as root)
-RUN warp-cli --version
+# Create entrypoint script to handle both web app and CLI commands (as root)
+RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
+    echo 'set -e' >> /usr/local/bin/entrypoint.sh && \
+    echo '' >> /usr/local/bin/entrypoint.sh && \
+    echo '# If no arguments or if first arg is not a command, start the web app' >> /usr/local/bin/entrypoint.sh && \
+    echo 'if [ $# -eq 0 ] || [ "${1:0:1}" = "-" ]; then' >> /usr/local/bin/entrypoint.sh && \
+    echo '    echo "🤠 Starting Code Country web application..."' >> /usr/local/bin/entrypoint.sh && \
+    echo '    exec npm start' >> /usr/local/bin/entrypoint.sh && \
+    echo 'fi' >> /usr/local/bin/entrypoint.sh && \
+    echo '' >> /usr/local/bin/entrypoint.sh && \
+    echo '# If first argument is warp-cli, execute it' >> /usr/local/bin/entrypoint.sh && \
+    echo 'if [ "$1" = "warp-cli" ]; then' >> /usr/local/bin/entrypoint.sh && \
+    echo '    shift' >> /usr/local/bin/entrypoint.sh && \
+    echo '    exec /usr/local/bin/warp-cli "$@"' >> /usr/local/bin/entrypoint.sh && \
+    echo 'fi' >> /usr/local/bin/entrypoint.sh && \
+    echo '' >> /usr/local/bin/entrypoint.sh && \
+    echo '# Otherwise, execute the command as provided' >> /usr/local/bin/entrypoint.sh && \
+    echo 'exec "$@"' >> /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
+
+# Verify Warp CLI installation (as root) - non-blocking
+RUN echo "Checking Warp CLI installation..." && \
+    ls -la /usr/local/bin/warp-cli && \
+    (warp-cli --version || echo "Warp CLI installation verification failed, but continuing...")
 
 USER nextjs
 
@@ -76,8 +114,9 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Start the application
-CMD ["npm", "start"]
+# Set entrypoint and default command
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD []
 
 # Add labels for better image management
 LABEL maintainer="Ian Hodge <ihodge97@example.com>"
